@@ -2,6 +2,8 @@ package Database;
 
 import Model.Produto;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutoDAO {
 
@@ -39,6 +41,46 @@ public class ProdutoDAO {
                 }
             }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Método para retornar todos os produtos
+    public List<Produto> getProdutos() {
+        String sql = "SELECT * FROM produtos";
+        List<Produto> produtos = new ArrayList<>();
+
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+
+            while (resultSet.next()) {
+                // Cria uma instância de Produto e preenche os dados do banco
+                Produto produto = new Produto(
+                        resultSet.getString("nome"),
+                        resultSet.getString("categoria"),
+                        resultSet.getInt("quantidade"),
+                        resultSet.getDouble("preco_compra"),
+                        resultSet.getDouble("preco_venda")
+                );
+                produto.setId(resultSet.getInt("id"));  // Preenche o ID
+                produtos.add(produto);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return produtos;
+    }
+
+    // Método para excluir um produto
+    public void deleteProduto(int id) {
+        String sql = "DELETE FROM produtos WHERE id = ?";
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, id);
+            statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
